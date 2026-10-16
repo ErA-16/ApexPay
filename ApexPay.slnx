@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ApexPay.Test/ApexPay.Test.csproj" Id="b2324813-ad0a-457a-b389-672d25a9baa2" />
+  <Project Path="ApexPay/ApexPay.csproj" />
+</Solution>
