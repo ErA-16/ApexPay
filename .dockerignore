@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+.git/
+.vs/
+ApexPay.Web/
+ApexPay.Test/
+AGENTS.md
+AGENTS_TESTING.md
+AGENT_FRONTEND.md
+Dockerfile
+.dockerignore
