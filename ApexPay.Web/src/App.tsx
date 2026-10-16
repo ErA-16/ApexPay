@@ -6,8 +6,6 @@ import { Loading } from "./components/ui.tsx";
 
 const LoginPage = lazy(() => import("./pages/LoginPage.tsx").then((m) => ({ default: m.LoginPage })));
 const SignupPage = lazy(() => import("./pages/SignupPage.tsx").then((m) => ({ default: m.SignupPage })));
-const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage.tsx").then((m) => ({ default: m.ForgotPasswordPage })));
-const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage.tsx").then((m) => ({ default: m.ResetPasswordPage })));
 const HomePage = lazy(() => import("./pages/HomePage.tsx").then((m) => ({ default: m.HomePage })));
 const WalletsPage = lazy(() => import("./pages/WalletsPage.tsx").then((m) => ({ default: m.WalletsPage })));
 const WalletDetailPage = lazy(() => import("./pages/WalletDetailPage.tsx").then((m) => ({ default: m.WalletDetailPage })));
@@ -72,8 +70,6 @@ export function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route
             path="/"
             element={

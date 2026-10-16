@@ -141,48 +141,6 @@ namespace ApexPay.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ApexPay.Models.PasswordResetToken", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expires_at");
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("token_hash");
-
-                    b.Property<DateTime?>("UsedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("used_at");
-
-                    b.HasKey("Id")
-                        .HasName("pk_password_reset_tokens");
-
-                    b.HasIndex("AccountId")
-                        .HasDatabaseName("ix_password_reset_tokens_account_id");
-
-                    b.HasIndex("TokenHash")
-                        .IsUnique()
-                        .HasDatabaseName("uq_password_reset_token_hash");
-
-                    b.ToTable("password_reset_tokens", (string)null);
-                });
-
             modelBuilder.Entity("ApexPay.Models.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -361,18 +319,6 @@ namespace ApexPay.Migrations
                     b.Navigation("Transaction");
 
                     b.Navigation("Wallet");
-                });
-
-            modelBuilder.Entity("ApexPay.Models.PasswordResetToken", b =>
-                {
-                    b.HasOne("ApexPay.Models.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_password_reset_tokens_accounts_account_id");
-
-                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("ApexPay.Models.Transaction", b =>

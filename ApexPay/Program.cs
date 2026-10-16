@@ -16,9 +16,8 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddScoped<IdempotencyService>();
-builder.Services.AddScoped<EmailSender>();
-builder.Services.AddScoped<IAccountService, AccountService>();
+        builder.Services.AddScoped<IdempotencyService>();
+        builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IWalletService, WalletService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"];

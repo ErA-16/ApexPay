@@ -19,9 +19,4 @@
     {
         public InvalidCredentialsException() : base(401, "Invalid email or password") { }
     }
-
-    public class InvalidResetTokenException : AuthException
-    {
-        public InvalidResetTokenException() : base(400, "Invalid or expired reset token.") { }
-    }
 }

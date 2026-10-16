@@ -22,7 +22,6 @@ public class ExceptionContractTests
     {
         Assert.Equal(409, new EmailExistException().StatusCode);
         Assert.Equal(401, new InvalidCredentialsException().StatusCode);
-        Assert.Equal(400, new InvalidResetTokenException().StatusCode);
     }
 
     [Fact]

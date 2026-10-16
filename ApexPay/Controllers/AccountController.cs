@@ -67,28 +67,5 @@ namespace ApexPay.Controllers
                 return StatusCode(ex.StatusCode, ex.Message);
             }
         }
-
-        [HttpPost("forgot-password")]
-        [EnableRateLimiting("auth")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
-        {
-            await _accountService.RequestPasswordResetAsync(request);
-            return StatusCode(StatusCodes.Status200OK, "If an account with that email exists, a reset link has been sent.");
-        }
-
-        [HttpPost("reset-password")]
-        [EnableRateLimiting("auth")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
-        {
-            try
-            {
-                await _accountService.ResetPasswordAsync(request);
-                return StatusCode(StatusCodes.Status204NoContent);
-            }
-            catch (AuthException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-        }
     }
 }

@@ -488,3 +488,6 @@ $RECYCLE.BIN/
 AGENTS.md
 AGENTS_TESTING.md
 AGENT_FRONTEND.md
+
+# Local error dumps (kept out of the repo)
+Error.txt
