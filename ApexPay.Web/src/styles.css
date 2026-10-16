@@ -249,6 +249,16 @@ button.danger:hover:not(:disabled) {
   background: #a02808;
 }
 
+button.danger-outline {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+button.danger-outline:hover:not(:disabled) {
+  background: var(--danger-bg);
+}
+
 button.link {
   background: none;
   color: var(--primary);
@@ -528,6 +538,10 @@ nav.top button.back {
 
 .app-header .spacer {
   flex: 1;
+}
+
+.app-header button {
+  width: auto;
 }
 
 .app-header .greeting {

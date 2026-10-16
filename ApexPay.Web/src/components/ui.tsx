@@ -99,7 +99,7 @@ export function ScreenHeader({ title }: { title: string }) {
     <header className="app-header">
       <h1 className="screen-title">{title}</h1>
       <span className="spacer" />
-      <button type="button" className="secondary" onClick={logout}>
+      <button type="button" className="danger-outline" onClick={logout}>
         Log out
       </button>
     </header>
@@ -125,7 +125,7 @@ export function AppHeader({ name }: { name: string }) {
         <span className="name">{name}</span>
       </div>
       <span className="spacer" />
-      <button type="button" className="secondary" onClick={logout}>
+      <button type="button" className="danger-outline" onClick={logout}>
         Log out
       </button>
     </header>
@@ -169,7 +169,7 @@ export function TopNav({ title }: { title: string }) {
       </button>
       <span className="muted">{title}</span>
       <span className="spacer" />
-      <button type="button" className="secondary" onClick={logout}>
+      <button type="button" className="danger-outline" onClick={logout}>
         Log out
       </button>
     </nav>
