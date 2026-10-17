@@ -16,12 +16,13 @@ ApexPay lets a person open an account, keep money in several wallets, send it to
 
 ## What you can do 🧭
 
-- 🔐 Sign up and log in
+- 🔐 Sign up, log in, and reset a forgotten password
 - 👛 Hold several named wallets, each with its own 10-digit account number
 - ➕ Add money to a wallet
 - 📤 Send money by account number
 - 🛍️ Pay a merchant, then 🔁 get a full refund
 - 📒 Read a wallet's history, with a built-in check that the balance is right
+- 🗂️ See every wallet's activity in one list, filter it down to a single wallet, and copy a reference to refund it
 
 ## Five questions that shaped everything 🧩
 
@@ -42,7 +43,7 @@ Transfer 2,500   wallet A ──debit──▶ ledger ◀──credit── wall
 **4. What if my own code has a bug?**
 Then let the database say no. Balances can't go below zero, amounts must be positive, and emails, account numbers and references are unique. If my code slips, the database refuses to save the damage.
 
-**The feature I cut.** Password reset is gone. Sending email needs a verified domain, and the free email tiers reject consumer senders like Gmail. I removed it rather than leave a half-working flow.
+**The feature I cut, then brought back.** Password reset once sat in the graveyard. Sending email wants a verified domain, and the cheap senders reject consumer addresses like Gmail's. I switched it back on over SMTP, tucked behind one small `EmailSender`, with the reset token stored hashed and good for 15 minutes. Without a verified domain, delivery to any inbox is best-effort.
 
 ## How it's put together 🏗️
 
@@ -64,11 +65,10 @@ Business errors are small named exceptions, each tied to one status code. The ma
 
 ## Does it hold up? 🧪
 
-About 46 integration tests run the real API against a real PostgreSQL database. They cover funding with retries, transfers, checkout, refunds, the refund wallet, amount rules, login, the rate limit, and the ledger balance check. Point the connection string at a separate Neon branch before running them.
+About 51 integration tests run the real API against a real PostgreSQL database. They cover funding with retries, transfers, checkout, refunds, the refund wallet, amount rules, login, password reset, the rate limit, and the ledger balance check. Point the connection string at a separate Neon branch before running them.
 
 ## Not done yet 🚧
 
-- No password reset (see above)
 - No refresh tokens, so you log in again when the token expires
 - Funding is simulated, with no real payment provider
 
@@ -76,7 +76,7 @@ About 46 integration tests run the real API against a real PostgreSQL database. 
 
 You need the .NET 10 SDK, Node, and a PostgreSQL database (Neon works).
 
-1. Set `ConnectionStrings__DefaultConnection`, `Jwt__Key` and `Frontend__Origin` (`http://localhost:5173`) as user secrets or environment variables.
+1. Set `ConnectionStrings__DefaultConnection`, `Jwt__Key` and `Frontend__Origin` (`http://localhost:5173`) as user secrets or environment variables. Password reset also reads `Email__*` and `App__ResetPasswordUrl`; leave them unset and it just logs instead of sending.
 2. Apply migrations with `dotnet ef database update`. On Neon, use the direct host (drop `-pooler`).
 3. Start the API: `dotnet run --project ApexPay` (it listens on `:5102` in development).
 4. In `ApexPay.Web`, set `VITE_API_BASE_URL=http://localhost:5102`, then `npm install` and `npm run dev`.
