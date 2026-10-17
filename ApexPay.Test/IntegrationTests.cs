@@ -104,6 +104,11 @@ public class IntegrationTests : IClassFixture<ApexPayFactory>, IAsyncLifetime
         db.Transactions.RemoveRange(transactions);
         await db.SaveChangesAsync();
 
+        var resetTokens = await db.PasswordResetTokens.AsNoTracking()
+            .Where(t => _createdAccountIds.Contains(t.AccountId))
+            .ToListAsync();
+        db.PasswordResetTokens.RemoveRange(resetTokens);
+
         var wallets = await db.Wallets.AsNoTracking()
             .Where(w => _createdAccountIds.Contains(w.AccountId))
             .ToListAsync();

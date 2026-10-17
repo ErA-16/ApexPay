@@ -81,6 +81,10 @@ export function HomePage() {
         ))}
       </div>
 
+      <div className="quick-links">
+        <Link to="/history">Transaction history</Link>
+      </div>
+
       <div className="section-head">
         <h2>Your wallets</h2>
         <Link to="/wallets">See all</Link>

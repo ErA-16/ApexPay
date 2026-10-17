@@ -58,6 +58,35 @@ export interface WalletHistoryResponse {
   entries: WalletHistoryEntry[];
 }
 
+export interface AccountHistoryWallet {
+  id: string;
+  name: string;
+  accountNumber: string;
+  status: string;
+}
+
+export interface AccountHistoryEntry {
+  walletId: string;
+  walletName: string;
+  accountNumber: string;
+  walletStatus: string;
+  reference: string;
+  type: string;
+  entryType: string;
+  amount: number;
+  timestamp: string;
+}
+
+export interface AccountHistoryResponse {
+  walletId: string | null;
+  page: number;
+  limit: number;
+  totalEntries: number;
+  totalPages: number;
+  wallets: AccountHistoryWallet[];
+  entries: AccountHistoryEntry[];
+}
+
 export interface FundWalletResponse {
   transactionId: string;
   reference: string;

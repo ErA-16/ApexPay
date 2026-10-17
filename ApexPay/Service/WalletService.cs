@@ -296,6 +296,79 @@ namespace ApexPay.Service
             };
         }
 
+        public async Task<AccountHistoryResponse> GetAccountHistoryAsync(Guid userId, Guid? walletId, int page, int limit, CancellationToken cancellationToken = default)
+        {
+            var walletRows = await _db.Wallets.AsNoTracking()
+                .Where(w => w.AccountId == userId)
+                .OrderBy(w => w.CreatedAt)
+                .ThenBy(w => w.Id)
+                .Select(w => new { w.Id, w.Name, w.AccountNumber, w.Status })
+                .ToListAsync(cancellationToken);
+
+            if (walletId.HasValue && walletRows.All(w => w.Id != walletId.Value))
+            {
+                _logger.LogWarning("Wallet {WalletId} not found for account {UserId}", walletId, userId);
+                throw new WalletNotOwnedException();
+            }
+
+            var query = _db.LedgerEntries.AsNoTracking()
+                .Where(e => e.Wallet.AccountId == userId);
+
+            if (walletId.HasValue)
+            {
+                query = query.Where(e => e.WalletId == walletId.Value);
+            }
+
+            var totalEntries = await query.CountAsync(cancellationToken);
+
+            var rows = await query
+                .OrderByDescending(e => e.CreatedAt)
+                .ThenByDescending(e => e.Id)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .Select(e => new
+                {
+                    e.WalletId,
+                    e.Wallet.Name,
+                    e.Wallet.AccountNumber,
+                    e.Wallet.Status,
+                    Reference = e.Transaction.Reference,
+                    e.Transaction.Type,
+                    e.EntryType,
+                    e.Amount,
+                    Timestamp = e.CreatedAt
+                })
+                .ToListAsync(cancellationToken);
+
+            return new AccountHistoryResponse
+            {
+                WalletId = walletId,
+                Page = page,
+                Limit = limit,
+                TotalEntries = totalEntries,
+                TotalPages = (int)Math.Ceiling(totalEntries / (double)limit),
+                Wallets = walletRows.Select(w => new AccountHistoryWallet
+                {
+                    Id = w.Id,
+                    Name = w.Name,
+                    AccountNumber = w.AccountNumber,
+                    Status = w.Status.ToString().ToUpperInvariant()
+                }).ToList(),
+                Entries = rows.Select(e => new AccountHistoryEntry
+                {
+                    WalletId = e.WalletId,
+                    WalletName = e.Name,
+                    AccountNumber = e.AccountNumber,
+                    WalletStatus = e.Status.ToString().ToUpperInvariant(),
+                    Reference = e.Reference,
+                    Type = e.Type.ToString().ToUpperInvariant(),
+                    EntryType = e.EntryType.ToString().ToUpperInvariant(),
+                    Amount = e.Amount,
+                    Timestamp = e.Timestamp
+                }).ToList()
+            };
+        }
+
         public async Task<WalletResponse> GetWalletByAccountNumberAsync(string accountNumber, CancellationToken cancellationToken = default)
         {
             var wallet = await _db.Wallets

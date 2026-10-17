@@ -73,6 +73,15 @@ export function IconRefund({ size }: { size?: number }) {
   );
 }
 
+export function IconHistory({ size }: { size?: number }) {
+  return (
+    <svg {...svgProps(size)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7.5V12l3 2" />
+    </svg>
+  );
+}
+
 export function Brand({ tagline }: { tagline?: string }) {
   return (
     <div className="brand">
@@ -135,6 +144,7 @@ export function AppHeader({ name }: { name: string }) {
 const navItems = [
   { to: "/", label: "Home", icon: IconHome, end: true },
   { to: "/wallets", label: "Wallets", icon: IconWallets, end: false },
+  { to: "/history", label: "History", icon: IconHistory, end: false },
   { to: "/transfer", label: "Send", icon: IconSend, end: false },
   { to: "/checkout", label: "Pay", icon: IconPay, end: false },
 ];

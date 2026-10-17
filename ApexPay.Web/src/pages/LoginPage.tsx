@@ -59,6 +59,9 @@ export function LoginPage() {
         <p>
           <Link to="/signup">Create an account</Link>
         </p>
+        <p>
+          <Link to="/forgot-password">Forgot password?</Link>
+        </p>
       </div>
     </div>
   );

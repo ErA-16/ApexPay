@@ -9,6 +9,7 @@ export function SignupPage() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
   const [sending, setSending] = useState(false);
@@ -17,6 +18,10 @@ export function SignupPage() {
     event.preventDefault();
     if (!firstName.trim() || !lastName.trim() || !email.trim() || password.length < 8) {
       setError("Fill every field. Password needs at least 8 characters.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
     setError("");
@@ -59,6 +64,16 @@ export function SignupPage() {
             onChange={(e) => setPassword(e.target.value)}
             maxLength={100}
             placeholder="At least 8 characters"
+          />
+          <label htmlFor="confirmPassword">Confirm password</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            maxLength={100}
+            placeholder="Re-enter your password"
           />
           <button type="submit" disabled={sending}>
             {sending ? "Creating…" : "Create account"}

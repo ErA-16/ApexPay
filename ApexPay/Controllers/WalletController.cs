@@ -174,6 +174,30 @@ namespace ApexPay.Controllers
             }
         }
 
+        [HttpGet("transactions")]
+        public async Task<IActionResult> GetAccountTransactions([FromQuery] int page = 1, [FromQuery] int limit = 20, [FromQuery] Guid? walletId = null)
+        {
+            if (page < 1)
+            {
+                return BadRequest("page must be at least 1");
+            }
+
+            if (limit < 1 || limit > 100)
+            {
+                return BadRequest("limit must be between 1 and 100");
+            }
+
+            try
+            {
+                var response = await _walletService.GetAccountHistoryAsync(GetUserId(), walletId, page, limit, HttpContext.RequestAborted);
+                return Ok(response);
+            }
+            catch (WalletNotOwnedException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
         [HttpGet("by-account-number/{accountNumber}")]
         public async Task<IActionResult> GetWalletByAccountNumber(string accountNumber)
         {

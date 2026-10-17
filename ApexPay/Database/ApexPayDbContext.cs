@@ -12,6 +12,7 @@ namespace ApexPay.Database
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<LedgerEntry> LedgerEntries { get; set; }
         public DbSet<Idempotency> Idempotencies { get; set; }
+        public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -147,6 +148,21 @@ namespace ApexPay.Database
                 entity.Property(i => i.RequestPath).IsRequired().HasMaxLength(255);
                 entity.Property(i => i.ResponseBody).HasColumnType("text");
                 entity.Property(i => i.Status).HasMaxLength(20).HasConversion<string>();
+            });
+
+            modelBuilder.Entity<PasswordResetToken>(entity =>
+            {
+                entity.ToTable("password_reset_tokens");
+                entity.Property(t => t.TokenHash).HasMaxLength(64).IsRequired();
+
+                entity.HasIndex(t => t.TokenHash)
+                    .HasDatabaseName("uq_password_reset_token_hash")
+                    .IsUnique();
+
+                entity.HasOne(t => t.Account)
+                    .WithMany()
+                    .HasForeignKey(t => t.AccountId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
         }

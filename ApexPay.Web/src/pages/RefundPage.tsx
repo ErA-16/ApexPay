@@ -1,11 +1,14 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { api, newIdempotencyKey } from "../api/client.ts";
 import type { RefundResponse } from "../api/types.ts";
 import { ConfirmDialog, ErrorBanner, OkBanner, TopNav } from "../components/ui.tsx";
 import { formatMoney } from "../money.ts";
 
 export function RefundPage() {
-  const [reference, setReference] = useState("");
+  const location = useLocation();
+  const presetReference = (location.state as { reference?: string } | null)?.reference ?? "";
+  const [reference, setReference] = useState(presetReference);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
   const [result, setResult] = useState<RefundResponse | null>(null);

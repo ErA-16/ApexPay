@@ -8,6 +8,7 @@ namespace ApexPay.Service
         Task<WalletListResponse> GetAllWalletsAsync(Guid userId, int page, int limit, CancellationToken cancellationToken = default);
         Task<WalletResponse> GetWalletByIdAsync(Guid userId, Guid walletId, CancellationToken cancellationToken = default);
         Task<WalletHistoryResponse> GetWalletHistoryAsync(Guid userId, Guid walletId, int page, int limit, CancellationToken cancellationToken = default);
+        Task<AccountHistoryResponse> GetAccountHistoryAsync(Guid userId, Guid? walletId, int page, int limit, CancellationToken cancellationToken = default);
         Task CloseWalletAsync(Guid userId, Guid walletId, CancellationToken cancellationToken = default);
         Task RenameWalletAsync(Guid userId, Guid walletId, RenameWalletRequest request, CancellationToken cancellationToken = default);
         Task<FundWalletResponse> FundWalletAsync(Guid userId, FundWalletRequest request, Guid idempotencyKey, CancellationToken cancellationToken = default);
