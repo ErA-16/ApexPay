@@ -1,19 +1,19 @@
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using MimeKit;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 
 namespace ApexPay.Service
 {
     public class EmailSender
     {
-        private const int SendTimeoutSeconds = 5;
-
+        private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly ILogger<EmailSender> _logger;
         private readonly IWebHostEnvironment _environment;
 
-        public EmailSender(IConfiguration configuration, ILogger<EmailSender> logger, IWebHostEnvironment environment)
+        public EmailSender(HttpClient httpClient, IConfiguration configuration, ILogger<EmailSender> logger, IWebHostEnvironment environment)
         {
+            _httpClient = httpClient;
             _configuration = configuration;
             _logger = logger;
             _environment = environment;
@@ -21,10 +21,10 @@ namespace ApexPay.Service
 
         public async Task SendAsync(string to, string subject, string body, CancellationToken cancellationToken = default)
         {
-            var host = _configuration["Email:Host"];
-            var fromAddress = _configuration["Email:FromAddress"];
+            var apiKey = _configuration["Brevo:ApiKey"];
+            var senderEmail = _configuration["Brevo:SenderEmail"];
 
-            if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(fromAddress))
+            if (string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(senderEmail))
             {
                 if (_environment.IsDevelopment())
                 {
@@ -40,31 +40,32 @@ namespace ApexPay.Service
 
             try
             {
-                var message = new MimeMessage();
-                message.From.Add(new MailboxAddress(_configuration["Email:FromName"] ?? "ApexPay", fromAddress));
-                message.To.Add(MailboxAddress.Parse(to));
-                message.Subject = subject;
-                message.Body = new TextPart("plain") { Text = body };
-
-                using var client = new SmtpClient
+                var payload = new
                 {
-                    Timeout = SendTimeoutSeconds * 1000
+                    sender = new
+                    {
+                        email = senderEmail,
+                        name = _configuration["Brevo:SenderName"] ?? "ApexPay"
+                    },
+                    to = new[] { new { email = to } },
+                    subject,
+                    textContent = body
                 };
 
-                var useStartTls = _configuration.GetValue("Email:UseStartTls", true);
-
-                await client.ConnectAsync(host, _configuration.GetValue("Email:Port", 587),
-                    useStartTls ? SecureSocketOptions.StartTlsWhenAvailable : SecureSocketOptions.None, cancellationToken);
-
-                var userName = _configuration["Email:UserName"];
-
-                if (!string.IsNullOrWhiteSpace(userName))
+                using var request = new HttpRequestMessage(HttpMethod.Post, "v3/smtp/email")
                 {
-                    await client.AuthenticateAsync(userName, _configuration["Email:Password"] ?? string.Empty, cancellationToken);
-                }
+                    Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json")
+                };
+                request.Headers.Add("api-key", apiKey);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                await client.SendAsync(message, cancellationToken);
-                await client.DisconnectAsync(true, cancellationToken);
+                using var response = await _httpClient.SendAsync(request, cancellationToken);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(cancellationToken);
+                    _logger.LogError("Failed to send email to {To}: {StatusCode} {Error}", to, (int)response.StatusCode, error);
+                }
             }
             catch (Exception ex)
             {

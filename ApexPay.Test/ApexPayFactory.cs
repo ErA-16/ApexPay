@@ -28,7 +28,9 @@ public class ApexPayFactory : WebApplicationFactory<Program>
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["RateLimit:Auth:PermitLimit"] = _permitLimit.ToString(),
-                ["RateLimit:Auth:WindowSeconds"] = "60"
+                ["RateLimit:Auth:WindowSeconds"] = "60",
+                ["Brevo:ApiKey"] = "",
+                ["Brevo:SenderEmail"] = ""
             });
         });
 

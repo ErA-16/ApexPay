@@ -76,7 +76,7 @@ About 51 integration tests run the real API against a real PostgreSQL database. 
 
 You need the .NET 10 SDK, Node, and a PostgreSQL database (Neon works).
 
-1. Set `ConnectionStrings__DefaultConnection`, `Jwt__Key` and `Frontend__Origin` (`http://localhost:5173`) as user secrets or environment variables. Password reset also reads `Email__*` and `App__ResetPasswordUrl`; leave them unset and it just logs instead of sending.
+1. Set `ConnectionStrings__DefaultConnection`, `Jwt__Key` and `Frontend__Origin` (`http://localhost:5173`) as user secrets or environment variables. Password reset also reads `Brevo__ApiKey`, `Brevo__SenderEmail`, `Brevo__SenderName` and `App__ResetPasswordUrl`; leave them unset and it just logs instead of sending.
 2. Apply migrations with `dotnet ef database update`. On Neon, use the direct host (drop `-pooler`).
 3. Start the API: `dotnet run --project ApexPay` (it listens on `:5102` in development).
 4. In `ApexPay.Web`, set `VITE_API_BASE_URL=http://localhost:5102`, then `npm install` and `npm run dev`.

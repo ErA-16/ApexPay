@@ -17,7 +17,11 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IdempotencyService>();
-builder.Services.AddScoped<EmailSender>();
+builder.Services.AddHttpClient<EmailSender>(client =>
+{
+    client.BaseAddress = new Uri("https://api.brevo.com/");
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IWalletService, WalletService>();
 
