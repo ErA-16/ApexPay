@@ -6,6 +6,8 @@ namespace ApexPay.Service
 {
     public class EmailSender
     {
+        private const int SendTimeoutSeconds = 5;
+
         private readonly IConfiguration _configuration;
         private readonly ILogger<EmailSender> _logger;
         private readonly IWebHostEnvironment _environment;
@@ -36,28 +38,38 @@ namespace ApexPay.Service
                 return;
             }
 
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(_configuration["Email:FromName"] ?? "ApexPay", fromAddress));
-            message.To.Add(MailboxAddress.Parse(to));
-            message.Subject = subject;
-            message.Body = new TextPart("plain") { Text = body };
-
-            using var client = new SmtpClient();
-
-            var useStartTls = _configuration.GetValue("Email:UseStartTls", true);
-
-            await client.ConnectAsync(host, _configuration.GetValue("Email:Port", 587),
-                useStartTls ? SecureSocketOptions.StartTlsWhenAvailable : SecureSocketOptions.None, cancellationToken);
-
-            var userName = _configuration["Email:UserName"];
-
-            if (!string.IsNullOrWhiteSpace(userName))
+            try
             {
-                await client.AuthenticateAsync(userName, _configuration["Email:Password"] ?? string.Empty, cancellationToken);
-            }
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(_configuration["Email:FromName"] ?? "ApexPay", fromAddress));
+                message.To.Add(MailboxAddress.Parse(to));
+                message.Subject = subject;
+                message.Body = new TextPart("plain") { Text = body };
 
-            await client.SendAsync(message, cancellationToken);
-            await client.DisconnectAsync(true, cancellationToken);
+                using var client = new SmtpClient
+                {
+                    Timeout = SendTimeoutSeconds * 1000
+                };
+
+                var useStartTls = _configuration.GetValue("Email:UseStartTls", true);
+
+                await client.ConnectAsync(host, _configuration.GetValue("Email:Port", 587),
+                    useStartTls ? SecureSocketOptions.StartTlsWhenAvailable : SecureSocketOptions.None, cancellationToken);
+
+                var userName = _configuration["Email:UserName"];
+
+                if (!string.IsNullOrWhiteSpace(userName))
+                {
+                    await client.AuthenticateAsync(userName, _configuration["Email:Password"] ?? string.Empty, cancellationToken);
+                }
+
+                await client.SendAsync(message, cancellationToken);
+                await client.DisconnectAsync(true, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send email to {To}", to);
+            }
         }
     }
 }

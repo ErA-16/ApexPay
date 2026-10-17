@@ -9,6 +9,8 @@ if (!configuredBaseUrl) {
 
 const baseUrl = configuredBaseUrl;
 
+const REQUEST_TIMEOUT_MS = 30000;
+
 export function newIdempotencyKey(): string {
   return crypto.randomUUID();
 }
@@ -29,28 +31,49 @@ export async function api<T>(path: string, method: string, body?: unknown, optio
   if (options?.idempotencyKey) {
     headers["Idempotency-Key"] = options.idempotencyKey;
   }
-  const response = await fetch(`${baseUrl}${path}`, {
-    method,
-    headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
-    signal: options?.signal,
-  });
-  if (response.status === 401) {
-    clearSession();
+
+  const controller = new AbortController();
+  let timedOut = false;
+  const timeoutId = window.setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, REQUEST_TIMEOUT_MS);
+
+  if (options?.signal) {
+    options.signal.addEventListener("abort", () => controller.abort());
   }
-  if (response.status === 204) {
-    return undefined as T;
-  }
-  const text = await response.text();
-  if (!response.ok) {
-    throw new ApiError(response.status, friendlyMessage(response.status, text));
-  }
-  if (!text) {
-    return undefined as T;
-  }
+
   try {
-    return JSON.parse(text) as T;
-  } catch {
-    return text as unknown as T;
+    const response = await fetch(`${baseUrl}${path}`, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal: controller.signal,
+    });
+    if (response.status === 401) {
+      clearSession();
+    }
+    if (response.status === 204) {
+      return undefined as T;
+    }
+    const text = await response.text();
+    if (!response.ok) {
+      throw new ApiError(response.status, friendlyMessage(response.status, text));
+    }
+    if (!text) {
+      return undefined as T;
+    }
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      return text as unknown as T;
+    }
+  } catch (err) {
+    if (timedOut) {
+      throw new Error("The request timed out. Please try again.");
+    }
+    throw err;
+  } finally {
+    window.clearTimeout(timeoutId);
   }
 }
